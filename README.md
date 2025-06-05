@@ -26,4 +26,4 @@ stow .
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 ```
 
-5. Run plugins: Press `CTRL-Space` + `I`
+5. Run plugins: Press `CTRL-b` + `I`
