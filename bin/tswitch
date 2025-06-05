@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Filter through active tmux sessions using fzf
+
+if ! command -v tmux &> /dev/null; then
+    echo "Error: tmux is not installed."
+    exit 1
+fi
+
+if ! command -v fzf &> /dev/null; then
+    echo "Error: fzf is not installed."
+    exit 1
+fi
+
+CREATE_NEW_OPTION="✨ Create New Session"
+
+EXISTING_SESSIONS=$(tmux ls -F '#S' 2>/dev/null)
+
+options=()
+if [[ -n "$EXISTING_SESSIONS" ]]; then
+  while IFS= read -r line; do
+    options+=("$line")
+  done <<< "$EXISTING_SESSIONS"
+fi
+options+=("$CREATE_NEW_OPTION")
+
+CHOSEN_OPTION=$(printf "%s\n" "${options[@]}" | fzf --prompt="🎯 Select tmux session: " --reverse --border=rounded --margin=1 --padding=1)
+
+if [[ -z "$CHOSEN_OPTION" ]]; then
+  exit 0
+fi
+
+if [[ "$CHOSEN_OPTION" == "$CREATE_NEW_OPTION" ]]; then
+  read -r -p "Enter name for new tmux session: " SESSION_NAME
+  if [[ -z "$SESSION_NAME" ]]; then
+    echo "No session name provided. Exiting."
+    exit 1
+  else
+    tmux new-session -s "$SESSION_NAME"
+  fi
+else
+  tmux attach-session -t "$CHOSEN_OPTION"
+fi
